@@ -1,39 +1,48 @@
 package com.exploremuse.brain;
 
 import android.app.Activity;
-import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import com.exploremuse.brain.adapter.MuseDeviceAdapter;
-import com.exploremuse.brain.listeners.ConnectionListener;
-import com.exploremuse.brain.listeners.DataListener;
+import com.exploremuse.brain.fragments.LandingAccelFragment;
+import com.exploremuse.brain.fragments.LandingMirrorFragment;
+import com.exploremuse.brain.views.DepthPageTransformer;
 import com.interaxon.libmuse.ConnectionState;
 import com.interaxon.libmuse.Muse;
+import com.interaxon.libmuse.MuseArtifactPacket;
+import com.interaxon.libmuse.MuseConnectionListener;
+import com.interaxon.libmuse.MuseConnectionPacket;
+import com.interaxon.libmuse.MuseDataListener;
+import com.interaxon.libmuse.MuseDataPacket;
 import com.interaxon.libmuse.MuseDataPacketType;
 import com.interaxon.libmuse.MuseFileFactory;
 import com.interaxon.libmuse.MuseFileWriter;
 import com.interaxon.libmuse.MuseManager;
 import com.interaxon.libmuse.MusePreset;
-
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
 public class LandingActivity extends AppCompatActivity implements View.OnClickListener {
+    public ViewPager mPager;
+    private PagerAdapter mPagerAdapter;
+    public int NUM_PAGES = 2;
     private TextView connectivityStatusText;
     private ListView devicesList;
-    private Muse selectedMuse;
+    public Muse selectedMuse;
     private ConnectionListener connectionListener;
     private DataListener dataListener;
-    private MuseFileWriter fileWriter;
-    public AnimationDrawable eyeBlink, mouthMotion;
+    public MuseFileWriter fileWriter;
 
     public LandingActivity() {
         WeakReference<Activity> weakActivity = new WeakReference<Activity>(this);
@@ -57,8 +66,11 @@ public class LandingActivity extends AppCompatActivity implements View.OnClickLi
 
         connectivityStatusText = (TextView)findViewById(R.id.device_status_text);
         devicesList = (ListView)findViewById(R.id.devices_list);
-        eyeBlink = (AnimationDrawable) ((ImageView)findViewById(R.id.eyes_image)).getBackground();
-        mouthMotion = (AnimationDrawable) ((ImageView)findViewById(R.id.mouth_image)).getBackground();
+
+        mPager = (ViewPager) findViewById(R.id.landing_pager);
+        mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
+        mPager.setAdapter(mPagerAdapter);
+        mPager.setPageTransformer(true, new DepthPageTransformer());
 
         File dir = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
         fileWriter = MuseFileFactory.getMuseFileWriter(new File(dir, "new_muse_file.muse"));
@@ -135,12 +147,7 @@ public class LandingActivity extends AppCompatActivity implements View.OnClickLi
         initialize();
         fileWriter.open();
         fileWriter.addAnnotationString(1, "Connect clicked");
-        /**
-         * In most cases libmuse native library takes care about
-         * exceptions and recovery mechanism, but native code still
-         * may throw in some unexpected situations (like bad bluetooth
-         * connection). Print all exceptions here.
-         */
+
         try {
             muse.runAsynchronously();
         } catch (Exception e) {
@@ -150,15 +157,6 @@ public class LandingActivity extends AppCompatActivity implements View.OnClickLi
 
     private void disconnect(Muse muse) {
         if (muse != null) {
-            /**
-             * true flag will force libmuse to unregister all listeners,
-             * BUT AFTER disconnecting and sending disconnection event.
-             * If you don't want to receive disconnection event (for ex.
-             * you call disconnect when application is closed), then
-             * unregister listeners first and then call disconnect:
-             * muse.unregisterAllListeners();
-             * muse.disconnect(false);
-             */
             muse.disconnect(true);
             fileWriter.addAnnotationString(1, "Disconnect clicked");
             fileWriter.flush();
@@ -184,6 +182,152 @@ public class LandingActivity extends AppCompatActivity implements View.OnClickLi
         }
         else {
             connect(muse);
+        }
+    }
+
+    /**
+     * Handle connection events related to the Muse device.
+     */
+    class ConnectionListener extends MuseConnectionListener {
+        final WeakReference<Activity> activityRef;
+        public ConnectionListener(final WeakReference<Activity> activityRef) {
+            this.activityRef = activityRef;
+        }
+
+        @Override
+        public void receiveMuseConnectionPacket(MuseConnectionPacket p) {
+            final ConnectionState current = p.getCurrentConnectionState();
+            final String status = p.getSource().getMacAddress() + ": " + current;
+            Log.i("Muse Headband", "Muse " + p.getSource().getMacAddress() + " " + status);
+            final Activity activity = activityRef.get();
+            if (activity != null) {
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (ConnectionState.CONNECTED == current) {
+                            ((MuseDeviceAdapter) ((ListView)findViewById(R.id.devices_list)).getAdapter()).notifyDataSetChanged();
+                            findViewById(R.id.eyes_image).setVisibility(View.VISIBLE);
+                            findViewById(R.id.mouth_image).setVisibility(View.VISIBLE);
+                        } else {
+                            findViewById(R.id.eyes_image).setVisibility(View.GONE);
+                            findViewById(R.id.mouth_image).setVisibility(View.GONE);
+
+                            if (ConnectionState.DISCONNECTED == current) {
+                                ((MuseDeviceAdapter) ((ListView)findViewById(R.id.devices_list)).getAdapter()).notifyDataSetChanged();
+                            }
+                        }
+
+                        ((TextView)findViewById(R.id.device_status_text)).setText(status);
+                    }
+                });
+            }
+        }
+    }
+
+    private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
+        private String[] title = {
+                "MIRROR",
+                "MUSE 2"
+        };
+
+        public ScreenSlidePagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            switch (position) {
+                case 0:
+                    return new LandingMirrorFragment();
+                case 1:
+                    return new LandingAccelFragment();
+
+            }
+            return null;
+        }
+
+        @Override
+        public int getCount() {
+            return NUM_PAGES;
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return title[position];
+        }
+    }
+
+    class DataListener extends MuseDataListener {
+        final WeakReference<Activity> activityRef;
+        private MuseFileWriter fileWriter;
+
+        public DataListener(final WeakReference<Activity> activityRef) {
+            this.activityRef = activityRef;
+        }
+
+        @Override
+        public void receiveMuseDataPacket(MuseDataPacket p) {
+            switch (p.getPacketType()) {
+                case ACCELEROMETER:
+                    //updateAccelerometer(p.getValues());
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        @Override
+        public void receiveMuseArtifactPacket(MuseArtifactPacket p) {
+            Activity activity = activityRef.get();
+
+            if (p.getHeadbandOn() && p.getBlink()) {
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        LandingMirrorFragment.eyeBlink.stop(); //reset any previous
+                        LandingMirrorFragment.eyeBlink.selectDrawable(0); //reset any previous
+                        LandingMirrorFragment.eyeBlink.start();
+                    }
+                });
+
+                Log.i("Artifacts", "blink");
+            }
+            if (p.getHeadbandOn() && p.getJawClench()) {
+                activity.runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        LandingMirrorFragment.mouthMotion.stop(); //reset any previous
+                        LandingMirrorFragment.mouthMotion.selectDrawable(0); //reset any previous
+                        LandingMirrorFragment.mouthMotion.start();
+                    }
+                });
+
+                Log.i("Artifacts", "jaw");
+            }
+        }
+
+    /*
+    private void updateAccelerometer(final ArrayList<Double> data) {
+        Activity activity = activityRef.get();
+        if (activity != null) {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Activity activity = activityRef.get();
+                    TextView acc_x = (TextView)activity.findViewById(R.id.acc_x);
+                    TextView acc_y = (TextView)activity.findViewById(R.id.acc_y);
+                    TextView acc_z = (TextView)activity.findViewById(R.id.acc_z);
+                    acc_x.setText(String.format("%6.2f", data.get(Accelerometer.FORWARD_BACKWARD.ordinal())));
+                    acc_y.setText(String.format("%6.2f", data.get(Accelerometer.UP_DOWN.ordinal())));
+                    acc_z.setText(String.format("%6.2f", data.get(Accelerometer.LEFT_RIGHT.ordinal())));
+                }
+            });
+        }
+    }
+    */
+
+        public void setFileWriter(MuseFileWriter fileWriter) {
+            this.fileWriter  = fileWriter;
         }
     }
 }

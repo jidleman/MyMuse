@@ -18,13 +18,6 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 
 /**
- * Data listener will be registered to listen for: Accelerometer,
- * Eeg and Relative Alpha bandpower packets. In all cases we will
- * update UI with new values.
- * We also will log message if Artifact packets contains "blink" flag.
- * DataListener methods will be called from execution thread. If you are
- * implementing "serious" processing algorithms inside those listeners,
- * consider to create another thread.
  * @author Muse w/ updates by jidleman
  */
 public class DataListener extends MuseDataListener {
@@ -56,9 +49,9 @@ public class DataListener extends MuseDataListener {
                 @Override
                 public void run() {
                     LandingActivity activity = (LandingActivity)activityRef.get();
-                    activity.eyeBlink.stop(); //reset any previous
+                    /*activity.eyeBlink.stop(); //reset any previous
                     activity.eyeBlink.selectDrawable(0); //reset any previous
-                    activity.eyeBlink.start();
+                    activity.eyeBlink.start();*/
                 }
             });
 
@@ -69,9 +62,9 @@ public class DataListener extends MuseDataListener {
                 @Override
                 public void run() {
                     LandingActivity activity = (LandingActivity)activityRef.get();
-                    activity.mouthMotion.stop(); //reset any previous
+                    /*activity.mouthMotion.stop(); //reset any previous
                     activity.mouthMotion.selectDrawable(0); //reset any previous
-                    activity.mouthMotion.start();
+                    activity.mouthMotion.start();*/
                 }
             });
 

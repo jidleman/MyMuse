@@ -62,6 +62,25 @@
             />
     </RelativeLayout>
 
+    <android.support.v4.view.ViewPager
+        android:id="@+id/landing_pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/device_status_layout"
+        android:layout_marginTop="5dp"
+        >
+        <android.support.v4.view.PagerTitleStrip
+            android:id="@+id/pager_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:background="#33b5e5"
+            android:textColor="#fff"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp"
+            />
+    </android.support.v4.view.ViewPager>
+<!--
     <ImageView
         android:id="@+id/eyes_image"
         android:layout_width="wrap_content"
@@ -69,6 +88,7 @@
         android:layout_below="@id/device_status_layout"
         android:background="@drawable/blink_anim"
         android:layout_centerHorizontal="true"
+        android:visibility="gone"
         />
     <ImageView
         android:id="@+id/mouth_image"
@@ -78,5 +98,8 @@
         android:layout_marginTop="-50dp"
         android:background="@drawable/mouth_anim"
         android:layout_centerHorizontal="true"
+        android:visibility="gone"
         />
+
+       -->
 </RelativeLayout>
