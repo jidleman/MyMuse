@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">MyMuse</string>
+    <string name="title_activity_landing_actvity">LandingActivity</string>
+
+    <string name="connect">Connect</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="refreshing">Refreshing...</string>
+    <string name="status_select">Connect to a Muse above.</string>
+    <string name="status_connected">Connected:</string>
+    <string name="status_no_devices">No paired devices found.</string>
+    <string name="muse_device">Muse Device</string>
+
+</resources>
