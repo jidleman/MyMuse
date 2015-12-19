@@ -1,21 +1,20 @@
 package com.exploremuse.brain;
 
 import android.app.Activity;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.exploremuse.brain.adapter.MuseDeviceAdapter;
 import com.exploremuse.brain.listeners.ConnectionListener;
 import com.exploremuse.brain.listeners.DataListener;
-import com.exploremuse.brain.util.ViewUtil;
 import com.interaxon.libmuse.ConnectionState;
-import com.interaxon.libmuse.LibMuseVersion;
 import com.interaxon.libmuse.Muse;
 import com.interaxon.libmuse.MuseDataPacketType;
 import com.interaxon.libmuse.MuseFileFactory;
@@ -34,6 +33,7 @@ public class LandingActivity extends AppCompatActivity implements View.OnClickLi
     private ConnectionListener connectionListener;
     private DataListener dataListener;
     private MuseFileWriter fileWriter;
+    public AnimationDrawable eyeBlink;
 
     public LandingActivity() {
         WeakReference<Activity> weakActivity = new WeakReference<Activity>(this);
@@ -44,7 +44,7 @@ public class LandingActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_landing_actvity);
+        setContentView(R.layout.activity_landing_activity);
         /*
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -57,11 +57,14 @@ public class LandingActivity extends AppCompatActivity implements View.OnClickLi
 
         connectivityStatusText = (TextView)findViewById(R.id.device_status_text);
         devicesList = (ListView)findViewById(R.id.devices_list);
+        eyeBlink = (AnimationDrawable) ((ImageView)findViewById(R.id.eyes_image)).getBackground();
 
         File dir = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
         fileWriter = MuseFileFactory.getMuseFileWriter(new File(dir, "new_muse_file.muse"));
         fileWriter.addAnnotationString(1, "LandingActivity onCreate");
         dataListener.setFileWriter(fileWriter);
+
+        loadMuseList();
     }
 
     @Override
@@ -166,11 +169,8 @@ public class LandingActivity extends AppCompatActivity implements View.OnClickLi
 
     private void initialize() {
         selectedMuse.registerConnectionListener(connectionListener);
-        selectedMuse.registerDataListener(dataListener, MuseDataPacketType.ACCELEROMETER);
-        selectedMuse.registerDataListener(dataListener, MuseDataPacketType.EEG);
-        selectedMuse.registerDataListener(dataListener, MuseDataPacketType.ALPHA_RELATIVE);
+        //selectedMuse.registerDataListener(dataListener, MuseDataPacketType.ACCELEROMETER);
         selectedMuse.registerDataListener(dataListener, MuseDataPacketType.ARTIFACTS);
-        selectedMuse.registerDataListener(dataListener, MuseDataPacketType.BATTERY);
         selectedMuse.setPreset(MusePreset.PRESET_14);
         selectedMuse.enableDataTransmission(true);
     }

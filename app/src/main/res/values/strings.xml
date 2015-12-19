@@ -7,7 +7,10 @@
     <string name="refreshing">Refreshing...</string>
     <string name="status_select">Connect to a Muse above.</string>
     <string name="status_connected">Connected:</string>
-    <string name="status_no_devices">No paired devices found.</string>
+    <string name="status_no_devices">No paired Muse devices.</string>
     <string name="muse_device">Muse Device</string>
+
+    <string name="accelerometer">Accelerometer</string>
+    <string name="gamma">Gamma</string>
 
 </resources>

@@ -2,6 +2,7 @@ package com.exploremuse.brain.listeners;
 
 import android.app.Activity;
 import android.util.Log;
+import android.view.View;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -29,7 +30,7 @@ public class ConnectionListener extends MuseConnectionListener {
     @Override
     public void receiveMuseConnectionPacket(MuseConnectionPacket p) {
         final ConnectionState current = p.getCurrentConnectionState();
-        final String status = "STATUS: " + current;
+        final String status = p.getSource().getMacAddress()+ ": " +current;
         Log.i("Muse Headband", "Muse " +p.getSource().getMacAddress()+ " " +status);
         final Activity activity = activityRef.get();
         // UI thread is used here only because we need to update
@@ -44,6 +45,10 @@ public class ConnectionListener extends MuseConnectionListener {
 
                     if(ConnectionState.CONNECTED==current) {
                         ((MuseDeviceAdapter)((ListView)contextActivity.findViewById(R.id.devices_list)).getAdapter()).notifyDataSetChanged();
+                        contextActivity.findViewById(R.id.eyes_image).setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        contextActivity.findViewById(R.id.eyes_image).setVisibility(View.GONE);
                     }
 
                     ((TextView)contextActivity.findViewById(R.id.device_status_text)).setText(status);
