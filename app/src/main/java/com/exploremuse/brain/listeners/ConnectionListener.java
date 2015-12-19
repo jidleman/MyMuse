@@ -11,13 +11,11 @@ import com.exploremuse.brain.adapter.MuseDeviceAdapter;
 import com.interaxon.libmuse.ConnectionState;
 import com.interaxon.libmuse.MuseConnectionListener;
 import com.interaxon.libmuse.MuseConnectionPacket;
-import com.interaxon.libmuse.MuseVersion;
-
 import java.lang.ref.WeakReference;
 
 /**
  * Connection listener updates UI with new connection status and logs it.
- * (c) Muse
+ * @author Muse w/ updates by jidleman
  */
 public class ConnectionListener extends MuseConnectionListener {
 
@@ -46,9 +44,15 @@ public class ConnectionListener extends MuseConnectionListener {
                     if(ConnectionState.CONNECTED==current) {
                         ((MuseDeviceAdapter)((ListView)contextActivity.findViewById(R.id.devices_list)).getAdapter()).notifyDataSetChanged();
                         contextActivity.findViewById(R.id.eyes_image).setVisibility(View.VISIBLE);
+                        contextActivity.findViewById(R.id.mouth_image).setVisibility(View.VISIBLE);
                     }
                     else {
                         contextActivity.findViewById(R.id.eyes_image).setVisibility(View.GONE);
+                        contextActivity.findViewById(R.id.mouth_image).setVisibility(View.GONE);
+
+                        if(ConnectionState.DISCONNECTED==current) {
+                            ((MuseDeviceAdapter) ((ListView) contextActivity.findViewById(R.id.devices_list)).getAdapter()).notifyDataSetChanged();
+                        }
                     }
 
                     ((TextView)contextActivity.findViewById(R.id.device_status_text)).setText(status);

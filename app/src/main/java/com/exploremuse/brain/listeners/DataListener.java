@@ -25,7 +25,7 @@ import java.util.ArrayList;
  * DataListener methods will be called from execution thread. If you are
  * implementing "serious" processing algorithms inside those listeners,
  * consider to create another thread.
- * (c) Muse
+ * @author Muse w/ updates by jidleman
  */
 public class DataListener extends MuseDataListener {
 
@@ -65,6 +65,16 @@ public class DataListener extends MuseDataListener {
             Log.i("Artifacts", "blink");
         }
         if (p.getHeadbandOn() && p.getJawClench()) {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    LandingActivity activity = (LandingActivity)activityRef.get();
+                    activity.mouthMotion.stop(); //reset any previous
+                    activity.mouthMotion.selectDrawable(0); //reset any previous
+                    activity.mouthMotion.start();
+                }
+            });
+
             Log.i("Artifacts", "jaw");
         }
     }

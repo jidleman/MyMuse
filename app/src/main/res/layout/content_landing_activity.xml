@@ -67,9 +67,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/device_status_layout"
-        android:layout_marginTop="5dp"
         android:background="@drawable/blink_anim"
         android:layout_centerHorizontal="true"
-        android:visibility="gone"
+        />
+    <ImageView
+        android:id="@+id/mouth_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/eyes_image"
+        android:layout_marginTop="-50dp"
+        android:background="@drawable/mouth_anim"
+        android:layout_centerHorizontal="true"
         />
 </RelativeLayout>

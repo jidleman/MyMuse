@@ -33,7 +33,7 @@ public class LandingActivity extends AppCompatActivity implements View.OnClickLi
     private ConnectionListener connectionListener;
     private DataListener dataListener;
     private MuseFileWriter fileWriter;
-    public AnimationDrawable eyeBlink;
+    public AnimationDrawable eyeBlink, mouthMotion;
 
     public LandingActivity() {
         WeakReference<Activity> weakActivity = new WeakReference<Activity>(this);
@@ -58,6 +58,7 @@ public class LandingActivity extends AppCompatActivity implements View.OnClickLi
         connectivityStatusText = (TextView)findViewById(R.id.device_status_text);
         devicesList = (ListView)findViewById(R.id.devices_list);
         eyeBlink = (AnimationDrawable) ((ImageView)findViewById(R.id.eyes_image)).getBackground();
+        mouthMotion = (AnimationDrawable) ((ImageView)findViewById(R.id.mouth_image)).getBackground();
 
         File dir = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
         fileWriter = MuseFileFactory.getMuseFileWriter(new File(dir, "new_muse_file.muse"));

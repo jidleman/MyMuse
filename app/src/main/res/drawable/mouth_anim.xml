@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animation-list
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:oneshot="true"
+    >
+    <item
+        android:drawable="@drawable/clenching_teeth_start"
+        android:duration="75"
+        />
+    <item
+        android:drawable="@drawable/clenching_teeth_mid"
+        android:duration="75"
+        />
+    <item
+        android:drawable="@drawable/clenching_teeth_end"
+        android:duration="75"
+        />
+    <item
+        android:drawable="@drawable/clenching_teeth_mid"
+        android:duration="75"
+        />
+    <item
+        android:drawable="@drawable/clenching_teeth_start"
+        android:duration="75"
+        />
+</animation-list>
